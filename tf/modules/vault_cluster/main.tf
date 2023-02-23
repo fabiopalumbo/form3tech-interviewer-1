@@ -1,0 +1,1 @@
+# Vault cluster as proposed architecture
