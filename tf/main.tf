@@ -1,33 +1,26 @@
-terraform {
-  required_version = ">= 1.0.7"
-
-  required_providers {
-    docker = {
-      source  = "kreuzwerker/docker"
-      version = "2.15.0"
-    }
-
-    vault = {
-      version = "3.0.1"
-    }
-  }
-}
-
-provider "vault" {
-  address = "http://localhost:8201"
+module "vault_dev" {
+  address = local.address
   token   = "f23612cf-824d-4206-9e94-e31a6dc8ee8d"
+  "db_user":   "account",
+  "db_password": "965d3c27-9e20-4d41-91c9-61e6631870e7"
 }
 
-provider "vault" {
-  alias   = "vault_dev"
-  address = "http://localhost:8201"
-  token   = "f23612cf-824d-4206-9e94-e31a6dc8ee8d"
+module "vault_stg" {
+  address = local.address
 }
 
-provider "vault" {
-  alias   = "vault_prod"
-  address = "http://localhost:8301"
-  token   = "083672fc-4471-4ec4-9b59-a285e463a973"
+module "vault_prod" {
+  address = local.address
+}
+
+module "docker_container_dev" {
+
+}
+module "docker_container_stg" {
+  
+}
+module "docker_container_prod" {
+  
 }
 
 resource "vault_audit" "audit_dev" {
