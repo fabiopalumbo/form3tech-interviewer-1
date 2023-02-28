@@ -1,5 +1,4 @@
-resource "vault_audit" "audit_dev" {
-  provider = vault.vault_dev
+resource "vault_audit" "this" {
   type     = "file"
 
   options = {
@@ -8,124 +7,43 @@ resource "vault_audit" "audit_dev" {
 }
 
 
-resource "vault_auth_backend" "userpass_dev" {
-  provider = vault.vault_dev
+resource "vault_auth_backend" "this" {
   type     = "userpass"
 }
 
 
-resource "vault_generic_secret" "account_development" {
-  provider = vault.vault_dev
-  path     = "secret/development/account"
+resource "vault_generic_secret" "this" {
+\  path     = "secret/${var.environment}/${var.vault_name}"
 
   data_json = <<EOT
 {
-  "db_user":   "account",
-  "db_password": "965d3c27-9e20-4d41-91c9-61e6631870e7"
+  "db_user":   "${var.vault_name}",
+  "db_password": "${var.vault_password}"
 }
 EOT
 }
 
-resource "vault_policy" "account_development" {
-  provider = vault.vault_dev
-  name     = "account-development"
+resource "vault_policy" "this" {
+  name     = "${var.vault_name}-${var.environment}"
 
   policy = <<EOT
 
-path "secret/data/development/account" {
+path "secret/data/${var.environment}/${var.vault_name}" {
     capabilities = ["list", "read"]
 }
 
 EOT
 }
 
-resource "vault_generic_endpoint" "account_development" {
-  provider             = vault.vault_dev
-  depends_on           = [vault_auth_backend.userpass_dev]
-  path                 = "auth/userpass/users/account-development"
+resource "vault_generic_endpoint" "this" {
+  depends_on           = [vault_auth_backend.this]
+  path                 = "auth/userpass/users/${var.vault_name}-${var.environment}"
   ignore_absent_fields = true
 
   data_json = <<EOT
 {
-  "policies": ["account-development"],
-  "password": "123-account-development"
-}
-EOT
-}
-
-resource "vault_generic_secret" "gateway_development" {
-  provider = vault.vault_dev
-  path     = "secret/development/gateway"
-
-  data_json = <<EOT
-{
-  "db_user":   "gateway",
-  "db_password": "10350819-4802-47ac-9476-6fa781e35cfd"
-}
-EOT
-}
-
-resource "vault_policy" "gateway_development" {
-  provider = vault.vault_dev
-  name     = "gateway-development"
-
-  policy = <<EOT
-
-path "secret/data/development/gateway" {
-    capabilities = ["list", "read"]
-}
-
-EOT
-}
-
-resource "vault_generic_endpoint" "gateway_development" {
-  provider             = vault.vault_dev
-  depends_on           = [vault_auth_backend.userpass_dev]
-  path                 = "auth/userpass/users/gateway-development"
-  ignore_absent_fields = true
-
-  data_json = <<EOT
-{
-  "policies": ["gateway-development"],
-  "password": "123-gateway-development"
-}
-EOT
-}
-resource "vault_generic_secret" "payment_development" {
-  provider = vault.vault_dev
-  path     = "secret/development/payment"
-
-  data_json = <<EOT
-{
-  "db_user":   "payment",
-  "db_password": "a63e8938-6d49-49ea-905d-e03a683059e7"
-}
-EOT
-}
-
-resource "vault_policy" "payment_development" {
-  provider = vault.vault_dev
-  name     = "payment-development"
-
-  policy = <<EOT
-
-path "secret/data/development/payment" {
-    capabilities = ["list", "read"]
-}
-
-EOT
-}
-
-resource "vault_generic_endpoint" "payment_development" {
-  provider             = vault.vault_dev
-  depends_on           = [vault_auth_backend.userpass_dev]
-  path                 = "auth/userpass/users/payment-development"
-  ignore_absent_fields = true
-
-  data_json = <<EOT
-{
-  "policies": ["payment-development"],
-  "password": "123-payment-development"
+  "policies": ["${var.vault_name}-${var.environment}"],
+  "password": "123-${var.vault_name}-${var.environment}"
 }
 EOT
 }
